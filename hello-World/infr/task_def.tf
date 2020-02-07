@@ -1,39 +1,28 @@
-resource "aws_ecs_task_definition" "helloworrld_task_definition" {
-  family                = "${var.workload}-${var.account}"
+resource "aws_cloudwatch_log_group" "hellow-logs" {
+  name = "${var.aws_log_group_hello_world}"
+}
+
+locals {
+  hellow_ecs_task_name = "adehelloworldapplication-${var.region}"
+}
+resource "aws_ecs_task_definition" "hello-world" {
+  family                = "helloworld-${var.region}"
   container_definitions = <<DEFINITION
 [
   {
-    "name": "${var.hello-world-task-name}",
-    "image": "${var.account_number}.dkr.ecr.${var.region}.amazonaws.com/${var.ecr_image_repo_name}:${var.image_tag}@${data.aws_ecr_image.hello_wrld.image_digest}",
+    "name": "${local.hellow_ecs_task_name}",
+    "image": "${var.account_number}.dkr.ecr.${var.region}.amazonaws.com/${var.ecr_image_repo_name}:${var.image_tag}",
     "memory": 512,
     "user": "root",
-    "mountPoints": [
-      {
-        "sourceVolume": "helloWorld",
-        "containerPath": "/hello-w"
-      }
-    ],
-    "environment": [
-        {
-            "name": "",
-            "value": "" 	// can add more environment variables as needed
-        },
-    ],
-    // add logs incase of any errors so the logs can be seen in cloudwatch
     "logConfiguration": {	
       "logDriver": "awslogs",	
       "options": {	
-        "awslogs-group": "${var.loggroup_name}",	
+        "awslogs-group": "${var.aws_log_group_hello_world}",	
         "awslogs-region": "${var.region}"	,
-        "awslogs-stream-prefix": "awslogs-pro-hello"
+        "awslogs-stream-prefix": "awslogs-hello"
       }
     }
   }
 ]
-  volume {
-    name      = "helloWorld"
-    host_path = "/hello-w"
-  }
+DEFINITION
 }
-
-
